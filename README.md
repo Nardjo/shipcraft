@@ -1,121 +1,140 @@
-# CC Workflow Plugin
+# Shipcraft
 
-Plugin Claude Code personnel contenant une collection complète d'agents, commandes et scripts pour optimiser le développement.
+> Ship fast, craft well.
 
-## Description
+Plugin Claude Code avec agents spécialisés et workflows automatisés pour un développement rapide et de qualité.
 
-Ce plugin regroupe plusieurs workflows et outils d'automatisation pour Claude Code :
+## Architecture
 
-- **APEX** : Workflow méthodique Analyse-Plan-Execute-Examine pour les tâches complexes
-- **OneShot** : Exécution autonome pour les tâches simples
-- **Git automation** : Commandes automatisées pour commit, push, PR et CI monitoring
-- **Agents spécialisés** : Copywriter, security expert, SEO performance, etc.
-- **Scripts utilitaires** : Validation, linting, hooks personnalisés
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  analyser   │───▶│   planner   │───▶│ implementer │───▶│  verifier   │
+│   (haiku)   │    │   (opus)    │    │  (sonnet)   │    │   (opus)    │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+       │                                                        │
+       └──────────────────┐    ┌────────────────────────────────┘
+                          ▼    ▼
+                    ┌─────────────┐
+                    │   snipper   │
+                    │   (haiku)   │
+                    └─────────────┘
+```
+
+| Agent         | Modèle | Rôle                                            |
+| ------------- | ------ | ----------------------------------------------- |
+| `analyser`    | haiku  | Explore le code, identifie patterns et contexte |
+| `planner`     | opus   | Crée des plans d'implémentation détaillés       |
+| `implementer` | sonnet | Exécute les plans avec précision                |
+| `verifier`    | opus   | Vérifie, teste, valide                          |
+| `snipper`     | haiku  | Éditions rapides et ciblées                     |
+
+## Commandes
+
+### Workflows
+
+| Commande   | Description                      | Agents                                      |
+| ---------- | -------------------------------- | ------------------------------------------- |
+| `/apex`    | Workflow complet avec validation | analyser → planner → implementer → verifier |
+| `/debug`   | Diagnostic et fix de bugs        | analyser → snipper → verifier               |
+| `/oneshot` | Exécution autonome rapide        | -                                           |
+
+### Git
+
+| Commande                   | Description                            |
+| -------------------------- | -------------------------------------- |
+| `/git:branch`              | Crée une branche depuis une description |
+| `/git:ship`                | **Commit + Push + PR** en une commande |
+| `/git:commit`              | Commit rapide                          |
+| `/git:push`                | Push avec upstream auto                |
+| `/git:create-pull-request` | Création PR                            |
+| `/git:review-pr`           | Review de PR                           |
+| `/git:watch-ci`            | Monitoring CI + auto-fix               |
+
+## Usage
+
+### APEX - Workflow méthodique
+
+```
+/apex Ajouter l'authentification OAuth
+```
+
+→ Analyse → Plan → **Approbation** → Implémentation → Vérification
+
+### Debug - Correction de bugs
+
+```
+/debug "TypeError dans le composant login"
+```
+
+→ Diagnostic → Fix → Vérification
+
+### Branch - Créer une branche
+
+```
+/git:branch Ajouter l'authentification OAuth
+```
+
+→ Crée `feat/add-oauth-auth`
+
+### Ship - Livraison express
+
+```
+/git:ship "feat: add OAuth"
+```
+
+→ Commit → Push → PR créée
+
+### OneShot - Exécution directe
+
+```
+/oneshot Corriger le typo dans le header
+```
+
+→ Fait. Pas de questions.
 
 ## Structure
 
 ```
-cc-workflow/
-├── .claude-plugin/
-│   └── plugin.json           # Manifest du plugin
-├── agents/                   # Agents spécialisés
-│   ├── copywriter.md
-│   ├── deep-research.md
-│   ├── explore-codebase.md
-│   ├── security-expert.md
-│   ├── seo-performance.md
+shipcraft/
+├── agents/
+│   ├── analyser.md
+│   ├── planner.md
+│   ├── implementer.md
+│   ├── verifier.md
 │   └── snipper.md
-├── commands/                 # Commandes slash
-│   ├── apex/                # Workflow APEX en phases
-│   ├── apex-quick/          # APEX rapide
-│   ├── git/                 # Automation Git
-│   ├── sales-page/          # Génération sales pages
-│   ├── apex.md              # Workflow APEX complet
-│   ├── cleanup-context.md
-│   ├── copywriter.md
-│   ├── create-skill.md
+├── commands/
+│   ├── apex.md
 │   ├── debug.md
-│   ├── deep-code-analysis.md
-│   └── oneshot.md
-└── scripts/                  # Scripts utilitaires
-    ├── commit.sh
-    ├── create-worktree.sh
-    ├── delete-worktree.sh
-    ├── play-sound.sh
-    ├── post-edit-lint.sh
-    ├── statusbar.sh
-    ├── statusline-ccusage.sh
-    ├── validate-command.js
-    └── *.readme.md
+│   ├── oneshot.md
+│   └── git/
+│       ├── branch.md
+│       ├── ship.md
+│       ├── commit.md
+│       ├── push.md
+│       ├── create-pull-request.md
+│       ├── review-pr.md
+│       └── watch-ci.md
+└── .claude-plugin/
+    └── plugin.json
 ```
-
-## Commandes principales
-
-### Workflows
-
-- `/apex` - Workflow méthodique avec validation utilisateur obligatoire
-- `/apex-quick:analyze` - Phase d'analyse uniquement
-- `/apex-quick:plan` - Phase de planification uniquement
-- `/apex-quick:execute` - Phase d'exécution uniquement
-- `/apex-quick:examine` - Phase d'examen uniquement
-- `/oneshot` - Exécution autonome sans validation
-
-### Git
-
-- `/git:commit` - Commit rapide avec messages concis
-- `/git:push` - Push avec configuration upstream automatique
-- `/git:create-pull-request` - Création PR avec titre/description auto-générés
-- `/git:review-pr` - Review détaillée d'une PR GitHub
-- `/git:watch-ci` - Monitoring CI avec auto-fix des échecs
-
-### Autres
-
-- `/debug` - Débogage de bugs UI/TypeScript/CI
-- `/deep-code-analysis` - Analyse approfondie de code
-- `/create-skill` - Création interactive d'agents/commandes
-- `/cleanup-context` - Optimisation des fichiers memory bank
-- `/copywriter` - Coach copywriting avec 5 styles d'écriture
-
-## Agents
-
-- **copywriter** : Coach copywriting avec styles multiples
-- **deep-research** : Recherche web approfondie multi-sources
-- **explore-codebase** : Exploration rapide de codebase (haiku)
-- **security-expert** : Spécialiste cybersécurité et sécurité défensive
-- **seo-performance** : Optimisation SEO et performance web
-- **snipper** : Modifications de code rapides et optimisées
-
-## Scripts
-
-Les scripts utilitaires sont disponibles dans `scripts/` :
-
-- **validate-command.js** : Validation des commandes Bash (hook PreToolUse)
-- **post-edit-lint.sh** : Linting post-édition (hook PostToolUse)
-- **statusline-ccusage.sh** : Affichage usage Claude Code dans statusline
-- **play-sound.sh** : Sons de notification
-- **commit.sh** : Helper pour commits
-- **create-worktree.sh / delete-worktree.sh** : Gestion git worktrees
 
 ## Installation
 
-1. Copier le dossier `cc-workflow` dans votre répertoire de plugins Claude Code
-2. Les agents, commandes et scripts seront automatiquement découverts
-3. Redémarrer Claude Code pour activer le plugin
-
-## Utilisation
-
-Les commandes sont invoquées avec `/nom-commande`, par exemple :
-
+```bash
+/plugin marketplace add Nardjo/shipcraft
+/plugin install shipcraft
 ```
-/apex Ajouter une nouvelle fonctionnalité d'authentification
-/oneshot Corriger le bug de validation du formulaire
-/git:commit
+
+Ou manuellement : cloner le repo dans votre dossier plugins Claude Code.
+
+```bash
+git clone git@github.com:Nardjo/shipcraft.git
 ```
 
 ## Auteur
 
 Jordan Bastin
 
-## Version
+## Licence
 
-1.0.0
+MIT

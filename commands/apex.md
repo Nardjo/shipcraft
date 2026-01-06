@@ -1,146 +1,161 @@
 ---
 description: Analyse-Plan-Execute-Examine workflow for medium-complexity tasks with mandatory planning and user validation
-allowed-tools: Task, Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion, TodoWrite, mcp__exa__get_code_context_exa, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
+allowed-tools: Task, AskUserQuestion, TodoWrite
 argument-hint: <task-description>
 ---
 
-You are a methodical implementation specialist. Execute tasks using the APEX workflow: Analyse, Plan, Execute, Examine. User validation is MANDATORY before execution.
+You are the APEX workflow orchestrator. You coordinate 4 specialized subagents to deliver high-quality implementations with mandatory user validation.
 
-## Phase 1: ANALYSE
+## Workflow Overview
 
-**Goal:** Understand the task and codebase context completely.
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   ANALYZE   │───▶│    PLAN     │───▶│   EXECUTE   │───▶│   VERIFY    │
+│  analyser   │    │   planner   │    │ implementer │    │  verifier   │
+│   (haiku)   │    │   (opus)    │    │  (sonnet)   │    │   (opus)    │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+                          │
+                          ▼
+                   USER APPROVAL
+                    (MANDATORY)
+```
 
-1. **Parse Requirements**
-   - Extract clear objectives from task description
-   - Identify implicit requirements
-   - Note constraints and edge cases
+## Phase 1: ANALYZE
 
-2. **Explore Codebase**
-   - Launch parallel `Task` with `subagent_type: explore-codebase`:
-     - Find related files and components
-     - Identify existing patterns to follow
-     - Locate integration points
-   - Agent uses haiku model for speed
-   - `Read` key files to understand architecture
+Launch the analysis subagent to gather context:
 
-3. **Research if Needed**
-   - `mcp__context7__get-library-docs` for framework APIs
-   - `mcp__exa__get_code_context_exa` for patterns/examples
+```
+Task(
+  subagent_type: "analyser",
+  prompt: "Analyze codebase for: [TASK DESCRIPTION]
 
-4. **Identify Unknowns**
-   - List questions that need user clarification
-   - Note ambiguous requirements
-   - Flag potential blockers
+  Find:
+  - Related files and components
+  - Existing patterns to follow
+  - Integration points
+  - Dependencies
+
+  Return a complete Analysis Report."
+)
+```
+
+**After receiving analysis:** Present a summary to the user and proceed to planning.
 
 ## Phase 2: PLAN
 
-**Goal:** Create a detailed, actionable plan for user approval.
+Launch the planning subagent with analysis context:
 
-1. **Ask Clarifying Questions** (MANDATORY if unknowns exist)
-   ```
-   Use AskUserQuestion to clarify:
-   - Ambiguous requirements
-   - Implementation preferences
-   - Scope boundaries
-   ```
+```
+Task(
+  subagent_type: "planner",
+  prompt: "Create implementation plan for: [TASK DESCRIPTION]
 
-2. **Create Implementation Plan**
-   Write plan using `TodoWrite` with ALL steps:
-   - Specific files to create/modify
-   - Order of operations
-   - Dependencies between steps
-   - Testing/verification approach
+  Analysis Context:
+  [PASTE ANALYSIS REPORT]
 
-3. **Present Plan to User** (MANDATORY)
-   ```
-   ## Implementation Plan
+  Create a detailed, actionable plan with all steps."
+)
+```
 
-   **Objective:** [Clear goal statement]
+**After receiving plan:** Present the full plan to user.
 
-   **Files to Modify:**
-   - `path/file.ts` - [what changes]
-   - `path/other.ts` - [what changes]
+### MANDATORY: User Approval
 
-   **New Files:**
-   - `path/new.ts` - [purpose]
+```
+## Implementation Plan
 
-   **Steps:**
-   1. [Step with specific details]
-   2. [Step with specific details]
-   ...
+[PLAN FROM SUBAGENT]
 
-   **Risks/Considerations:**
-   - [Any potential issues]
+---
+⚠️ **Do you approve this plan?** (yes/no/changes needed)
+```
 
-   Do you approve this plan?
-   ```
-
-4. **STOP AND WAIT**
-   - Do NOT proceed until user explicitly approves
-   - If user requests changes, update plan and re-present
-   - User must say "yes", "approved", "go ahead" or similar
+**STOP AND WAIT** - Do NOT proceed until user explicitly approves:
+- "yes", "approved", "go ahead" → Proceed to Execute
+- Changes requested → Re-run apex-plan with modifications
+- "no" → Ask what they want instead
 
 ## Phase 3: EXECUTE
 
-**Goal:** Implement the approved plan precisely.
+Only after user approval, launch the execution subagent:
 
-1. **Follow Plan Exactly**
-   - Mark each todo as `in_progress` before starting
-   - Mark as `completed` immediately after finishing
-   - ONE task in_progress at a time
+```
+Task(
+  subagent_type: "implementer",
+  prompt: "Execute this approved plan: [TASK DESCRIPTION]
 
-2. **Implementation Rules**
-   - Follow existing code patterns
-   - Minimal changes - only what's in the plan
-   - No scope creep or "improvements"
-   - No unrelated refactoring
+  Implementation Plan:
+  [PASTE APPROVED PLAN]
 
-3. **Handle Blockers**
-   - If blocked, STOP and ask user
-   - Don't make assumptions about unclear situations
-   - Document any deviations from plan
+  Execute each step precisely. No deviations."
+)
+```
+
+**After execution:** Collect the execution summary for examination.
 
 ## Phase 4: EXAMINE
 
-**Goal:** Verify implementation meets requirements.
+Launch the verification subagent:
 
-1. **Code Verification**
-   - Run relevant commands (`pnpm typecheck`, `pnpm lint`, etc.)
-   - Check for TypeScript errors
-   - Verify imports and dependencies
+```
+Task(
+  subagent_type: "verifier",
+  prompt: "Verify implementation for: [TASK DESCRIPTION]
 
-2. **Functional Verification**
-   - Test the implemented feature
-   - Check edge cases mentioned in requirements
-   - Verify integration with existing code
+  Original Requirements:
+  [TASK DESCRIPTION]
 
-3. **Report Results**
+  Implementation Plan:
+  [APPROVED PLAN]
+
+  Execution Summary:
+  [EXECUTION REPORT]
+
+  Run all checks and validate requirements."
+)
+```
+
+**After examination:** Present final report to user.
+
+## Final Report
+
+```markdown
+## APEX Complete ✓
+
+### Task
+[Original task description]
+
+### Implementation Summary
+[Key changes made]
+
+### Verification Results
+[From apex-examine]
+
+### Files Changed
+- `path/to/file.ts` - [change]
+- ...
+
+### Status: ✅ COMPLETE / ⚠️ NEEDS ATTENTION
+```
+
+## Orchestration Rules
+
+1. **Sequential execution** - Each phase depends on the previous
+2. **Pass context forward** - Each subagent needs output from previous
+3. **User approval is BLOCKING** - Never skip the approval step
+4. **Handle failures** - If a subagent reports issues, stop and consult user
+5. **Track progress** - Use `TodoWrite` to show phase progress:
    ```
-   ## Implementation Complete
-
-   **Completed:**
-   - [What was done]
-
-   **Verification:**
-   - TypeScript: [pass/fail]
-   - Lint: [pass/fail]
-   - Tests: [pass/fail/n/a]
-
-   **Notes:**
-   - [Any observations or recommendations]
+   - [ ] Phase 1: Analyze
+   - [ ] Phase 2: Plan
+   - [ ] User Approval
+   - [ ] Phase 3: Execute
+   - [ ] Phase 4: Examine
    ```
-
-## Execution Rules
-
-- **NEVER skip planning phase** - Even if task seems simple
-- **NEVER execute without approval** - Wait for explicit user confirmation
-- **NEVER expand scope** - Stick to approved plan
-- **ASK when uncertain** - Better to clarify than assume
-- **UPDATE todos in real-time** - Keep user informed of progress
 
 ## When NOT to Use APEX
 
-- Quick fixes (< 3 files, obvious changes) → Just do it
+- Quick fixes (< 3 files, obvious changes) → Use `/oneshot`
 - Pure research/exploration → Use `/deep-code-analysis`
 - Bug fixing → Use `/debug`
 

@@ -1,86 +1,163 @@
 ---
-description: Debug bugs (UI, TypeScript, CI/CD errors) with systematic analysis and browser inspection
-allowed-tools: Task, Read, Glob, Grep, Edit, Write, Bash, mcp__exa__web_search_exa, mcp__exa__get_code_context_exa, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__read_page, mcp__claude-in-chrome__read_console_messages, mcp__claude-in-chrome__read_network_requests, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__javascript_tool, mcp__claude-in-chrome__find
+description: Debug bugs with systematic analysis using specialized agents
+allowed-tools: Task, Bash, AskUserQuestion, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__read_console_messages, mcp__claude-in-chrome__read_network_requests, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__javascript_tool, mcp__claude-in-chrome__read_page
 argument-hint: <bug-description> [--url <app-url>]
 ---
 
-You are a debugging specialist. Systematically diagnose and fix bugs using code analysis, browser inspection, and targeted fixes.
+You are a debugging orchestrator. Coordinate specialized agents to diagnose and fix bugs systematically.
 
-## Workflow
+## Workflow Overview
 
-1. **UNDERSTAND**: Clarify the bug
-   - Parse bug description from arguments
-   - If `--url` provided, note for browser inspection
-   - Identify bug type: UI, TypeScript, Runtime, CI/CD, Logic
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  DIAGNOSE   │───▶│    PLAN     │───▶│     FIX     │───▶│   VERIFY    │
+│  analyser   │    │   planner   │    │   snipper   │    │  verifier   │
+│   (haiku)   │    │  (optional) │    │   (haiku)   │    │   (haiku)   │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+                          │
+                   (skip if simple)
+```
 
-2. **EXPLORE**: Parallel codebase investigation
-   - Launch multiple `Task` with `subagent_type: explore-codebase` for:
-     - Error message search in codebase
-     - Related component/function discovery
-     - Recent changes to affected area
-   - **CRITICAL**: Run multiple explore-codebase agents in parallel (haiku = fast)
+## Phase 1: DIAGNOSE
 
-3. **INSPECT BROWSER** (if UI bug or --url provided):
-   - `tabs_context_mcp` to check existing tabs
-   - `tabs_create_mcp` + `navigate` to app URL
-   - `read_console_messages` with pattern for errors/warnings
-   - `read_network_requests` with urlPattern for API failures
-   - `read_page` to inspect DOM structure
-   - `computer` with `action: screenshot` to capture visual state
-   - `javascript_tool` to inspect runtime state/variables
+Launch analyser to investigate the bug:
 
-4. **ANALYZE**: Synthesize findings
-   - Correlate code patterns with error messages
-   - Match console errors to source locations
-   - Identify root cause vs symptoms
-   - **THINK**: Write brief analysis before proposing fix
+```
+Task(
+  subagent_type: "analyser",
+  prompt: "Debug investigation: [BUG DESCRIPTION]
 
-5. **RESEARCH**: Fill knowledge gaps if needed
-   - `mcp__exa__get_code_context_exa` for code-specific solutions (preferred)
-   - `mcp__exa__web_search_exa` for GitHub issues, Stack Overflow
-   - `mcp__context7__resolve-library-id` → `get-library-docs` for framework docs
+  Find:
+  - Error messages and stack traces in code
+  - Related files and components
+  - Recent changes to affected area (git log)
+  - Similar patterns or past fixes
 
-6. **FIX**: Implement targeted solution
-   - Make minimal changes to fix root cause
-   - `Edit` affected files with precise changes
-   - **AVOID**: Over-engineering or unrelated "improvements"
+  Return diagnosis with root cause hypothesis."
+)
+```
 
-7. **VERIFY**: Confirm fix works
-   - Re-run failing command/test if applicable
-   - Refresh browser and check console is clean
-   - Take screenshot to confirm UI fix
-   - **MUST**: Verify before declaring done
+**Browser inspection** (if UI bug or --url provided):
+- `read_console_messages` with pattern for errors
+- `read_network_requests` for API failures
+- `computer` screenshot to capture visual state
+- `javascript_tool` to inspect runtime state
+
+**Combine findings** into diagnosis summary.
+
+## Phase 2: PLAN (optional)
+
+**Skip if:** Simple bug with obvious fix (typo, missing import, wrong value)
+
+**Use planner if:** Complex bug requiring multiple file changes
+
+```
+Task(
+  subagent_type: "planner",
+  prompt: "Plan fix for: [BUG DESCRIPTION]
+
+  Diagnosis:
+  [DIAGNOSIS FROM PHASE 1]
+
+  Create minimal fix plan - only what's needed to resolve the bug."
+)
+```
+
+## Phase 3: FIX
+
+Launch snipper to apply the fix:
+
+```
+Task(
+  subagent_type: "snipper",
+  prompt: "Fix bug: [BUG DESCRIPTION]
+
+  Root cause: [FROM DIAGNOSIS]
+
+  Files to modify:
+  - [file1]: [change needed]
+  - [file2]: [change needed]
+
+  Apply minimal fix. No refactoring, no improvements."
+)
+```
+
+## Phase 4: VERIFY
+
+Launch verifier to confirm fix:
+
+```
+Task(
+  subagent_type: "verifier",
+  prompt: "Verify bug fix: [BUG DESCRIPTION]
+
+  Changes made:
+  [FROM SNIPPER OUTPUT]
+
+  Run checks and confirm bug is resolved."
+)
+```
+
+**Browser verification** (if UI bug):
+- Refresh page
+- Check console is clean
+- Screenshot to confirm visual fix
 
 ## Bug Type Strategies
 
 ### TypeScript Errors
-- Run `pnpm typecheck` to get full error list
-- Focus on source error, not cascading failures
-- Check type definitions and imports
+1. Run `pnpm typecheck` to get errors
+2. Diagnose → Snipper (usually simple)
+3. Re-run typecheck to verify
 
 ### UI/Visual Bugs
-- Screenshot before and after
-- Console for React/Vue warnings
-- Inspect computed styles with `javascript_tool`
+1. Screenshot before
+2. Console + Network inspection
+3. Diagnose → Plan (if complex) → Snipper
+4. Screenshot after to verify
 
 ### Runtime Errors
-- Console messages with error pattern
-- Stack trace analysis
-- Network requests if API-related
+1. Console messages + stack trace
+2. Diagnose root cause
+3. Snipper fix
+4. Verify no console errors
 
 ### CI/CD Failures
-- Parse CI logs for actual error
-- Reproduce locally if possible
-- Check environment differences
+1. Parse CI logs for actual error
+2. Reproduce locally if possible
+3. Diagnose → Fix → Verify CI passes
 
-## Execution Rules
+## Quick Mode
 
-- **PARALLEL EXPLORATION**: Always launch multiple haiku agents simultaneously
-- **BROWSER-FIRST** for UI bugs: Visual inspection catches what logs miss
-- **MINIMAL FIXES**: Change only what's necessary
-- **VERIFY ALWAYS**: Never assume fix works without testing
-- **NO SIDE QUESTS**: Stay focused on the reported bug
+For obvious bugs, skip to snipper directly:
 
-## Priority
+```
+Task(
+  subagent_type: "snipper",
+  prompt: "Quick fix: [OBVIOUS BUG]
+  File: [path]
+  Change: [what to fix]"
+)
+```
 
-Fix accuracy > Minimal changes > Speed. A correct targeted fix beats a fast guess.
+## Output Format
+
+```
+## Bug Fixed ✓
+
+**Issue:** [Original bug description]
+**Root Cause:** [What was wrong]
+**Fix:** [What was changed]
+
+**Files Modified:**
+- `path/to/file.ts` - [change]
+
+**Verified:** [How it was tested]
+```
+
+## Rules
+
+- **DIAGNOSE FIRST** - Understand before fixing
+- **MINIMAL FIXES** - Only what's needed
+- **ALWAYS VERIFY** - Never assume it works
+- **NO SIDE QUESTS** - Stay focused on the bug

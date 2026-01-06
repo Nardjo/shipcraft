@@ -25,3 +25,5 @@ yarn-error.log*
 *.local.md
 .env
 .env.local
+
+CHANGELOG.md
