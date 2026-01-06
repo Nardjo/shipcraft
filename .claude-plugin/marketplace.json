@@ -1,0 +1,20 @@
+{
+  "name": "nardjo-plugins",
+  "owner": {
+    "name": "Jordan Bastin",
+    "email": "jordanbastin@pm.me"
+  },
+  "plugins": [
+    {
+      "name": "shipcraft",
+      "source": ".",
+      "description": "Ship fast, craft well. Agents spécialisés et workflows automatisés pour Claude Code.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jordan Bastin"
+      },
+      "keywords": ["workflow", "agents", "apex", "git", "automation"],
+      "license": "MIT"
+    }
+  ]
+}
