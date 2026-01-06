@@ -8,8 +8,5 @@
   },
   "keywords": ["workflow", "agents", "apex", "git", "automation"],
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Nardjo/shipcraft"
-  }
+  "repository": "https://github.com/Nardjo/shipcraft"
 }
