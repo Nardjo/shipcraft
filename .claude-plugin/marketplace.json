@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "shipcraft",
-      "source": ".",
+      "source": "./",
       "description": "Ship fast, craft well. Agents spécialisés et workflows automatisés pour Claude Code.",
       "version": "1.0.0",
       "author": {
