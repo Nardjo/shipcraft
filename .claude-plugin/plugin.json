@@ -1,0 +1,9 @@
+{
+  "name": "cc-workflow",
+  "version": "1.0.0",
+  "description": "Collection personnelle d'agents, commandes et scripts pour Claude Code - workflows APEX, OneShot, git automation et plus",
+  "author": {
+    "name": "Jordan Bastin",
+    "email": "jordan@example.com"
+  }
+}
