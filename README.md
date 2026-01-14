@@ -20,13 +20,14 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
                     └─────────────┘
 ```
 
-| Agent         | Modèle | Rôle                                            |
-| ------------- | ------ | ----------------------------------------------- |
-| `analyser`    | haiku  | Explore le code, identifie patterns et contexte |
-| `planner`     | opus   | Crée des plans d'implémentation détaillés       |
-| `implementer` | sonnet | Exécute les plans avec précision                |
-| `verifier`    | opus   | Vérifie, teste, valide                          |
-| `snipper`     | haiku  | Éditions rapides et ciblées                     |
+| Agent             | Modèle | Rôle                                            |
+| ----------------- | ------ | ----------------------------------------------- |
+| `analyser`        | haiku  | Explore le code, identifie patterns et contexte |
+| `planner`         | opus   | Crée des plans d'implémentation détaillés       |
+| `implementer`     | sonnet | Exécute les plans avec précision                |
+| `verifier`        | opus   | Vérifie, teste, valide                          |
+| `snipper`         | haiku  | Éditions rapides et ciblées                     |
+| `code-simplifier` | -      | Simplifie et refactorise le code automatiquement |
 
 ## Commandes
 
@@ -37,6 +38,7 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 | `/apex`    | Workflow complet avec validation | analyser → planner → implementer → verifier |
 | `/debug`   | Diagnostic et fix de bugs        | analyser → snipper → verifier               |
 | `/oneshot` | Exécution autonome rapide        | -                                           |
+| `/export`  | Export session context complète  | -                                           |
 
 ### Git
 
@@ -44,7 +46,7 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 | -------------------------- | -------------------------------------- |
 | `/git:branch`              | Crée une branche depuis une description |
 | `/git:ship`                | **Commit + Push + PR** en une commande |
-| `/git:commit`              | Commit rapide                          |
+| `/git:commit`              | Commit rapide + simplification auto    |
 | `/git:push`                | Push avec upstream auto                |
 | `/git:create-pull-request` | Création PR                            |
 | `/git:review-pr`           | Review de PR                           |
@@ -92,6 +94,14 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 
 → Fait. Pas de questions.
 
+### Export - Capture de session
+
+```
+/export
+```
+
+→ Export complet de la session (clipboard ou fichier si > 200 lignes)
+
 ## Structure
 
 ```
@@ -101,11 +111,13 @@ shipcraft/
 │   ├── planner.md
 │   ├── implementer.md
 │   ├── verifier.md
-│   └── snipper.md
+│   ├── snipper.md
+│   └── code-simplifier.md
 ├── commands/
 │   ├── apex.md
 │   ├── debug.md
 │   ├── oneshot.md
+│   ├── export.md
 │   └── git/
 │       ├── branch.md
 │       ├── ship.md
