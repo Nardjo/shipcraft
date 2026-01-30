@@ -1,7 +1,7 @@
 ---
 name: Snipper
 description: Use this agent when you need to modify code. This agent is specialized to be fast. The output is small and optimized to code as fast as agent can.
-model: haiku
+model: opus
 color: blue
 ---
 

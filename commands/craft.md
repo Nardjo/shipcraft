@@ -1,18 +1,18 @@
 ---
-description: Analyse-Plan-Execute-Examine workflow for medium-complexity tasks with mandatory planning and user validation
+description: Craft high-quality implementations with 4-phase workflow (Analyze → Plan → Execute → Verify) and mandatory user validation
 allowed-tools: Task, AskUserQuestion, TodoWrite
 argument-hint: <task-description>
 ---
 
-You are the APEX workflow orchestrator. You coordinate 4 specialized subagents to deliver high-quality implementations with mandatory user validation.
+You are the CRAFT workflow orchestrator. You coordinate 4 specialized subagents to deliver high-quality implementations with mandatory user validation.
 
 ## Workflow Overview
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │   ANALYZE   │───▶│    PLAN     │───▶│   EXECUTE   │───▶│   VERIFY    │
-│  analyser   │    │   planner   │    │ implementer │    │  verifier   │
-│   (haiku)   │    │   (opus)    │    │  (sonnet)   │    │   (opus)    │
+│  analyser   │    │   planner   │    │snipper(s) ou│    │  verifier   │
+│   (haiku)   │    │   (opus)    │    │ implementer │    │   (opus)    │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
                           │
                           ▼
@@ -27,6 +27,7 @@ Launch the analysis subagent to gather context:
 ```
 Task(
   subagent_type: "analyser",
+  model: "haiku",
   prompt: "Analyze codebase for: [TASK DESCRIPTION]
 
   Find:
@@ -48,6 +49,7 @@ Launch the planning subagent with analysis context:
 ```
 Task(
   subagent_type: "planner",
+  model: "opus",
   prompt: "Create implementation plan for: [TASK DESCRIPTION]
 
   Analysis Context:
@@ -72,16 +74,44 @@ Task(
 
 **STOP AND WAIT** - Do NOT proceed until user explicitly approves:
 - "yes", "approved", "go ahead" → Proceed to Execute
-- Changes requested → Re-run apex-plan with modifications
+- Changes requested → Re-run planning phase with modifications
 - "no" → Ask what they want instead
 
 ## Phase 3: EXECUTE
 
-Only after user approval, launch the execution subagent:
+Only after user approval, choose execution strategy based on the plan:
+
+### Option A: Multiple independent tasks → Parallel Snippers
+
+If the plan contains independent tasks (no dependencies between them), launch multiple `snipper` agents in parallel:
+
+```
+Task(
+  subagent_type: "snipper",
+  model: "opus",
+  prompt: "Execute task 1: [SPECIFIC TASK]
+
+  Context: [RELEVANT CONTEXT FROM PLAN]
+
+  Execute precisely. No deviations."
+),
+Task(
+  subagent_type: "snipper",
+  model: "opus",
+  prompt: "Execute task 2: [SPECIFIC TASK]
+  ..."
+)
+// Launch all in parallel (single message, multiple Task calls)
+```
+
+### Option B: Complex/dependent task → Single Implementer
+
+If the plan is a single large task or tasks have dependencies, launch one `implementer` agent:
 
 ```
 Task(
   subagent_type: "implementer",
+  model: "opus",
   prompt: "Execute this approved plan: [TASK DESCRIPTION]
 
   Implementation Plan:
@@ -100,6 +130,7 @@ Launch the verification subagent:
 ```
 Task(
   subagent_type: "verifier",
+  model: "opus",
   prompt: "Verify implementation for: [TASK DESCRIPTION]
 
   Original Requirements:
@@ -120,7 +151,7 @@ Task(
 ## Final Report
 
 ```markdown
-## APEX Complete ✓
+## CRAFT Complete ✓
 
 ### Task
 [Original task description]
@@ -129,7 +160,7 @@ Task(
 [Key changes made]
 
 ### Verification Results
-[From apex-examine]
+[From verification phase]
 
 ### Files Changed
 - `path/to/file.ts` - [change]
@@ -153,7 +184,7 @@ Task(
    - [ ] Phase 4: Examine
    ```
 
-## When NOT to Use APEX
+## When NOT to Use CRAFT
 
 - Quick fixes (< 3 files, obvious changes) → Use `/oneshot`
 - Pure research/exploration → Use `/deep-code-analysis`

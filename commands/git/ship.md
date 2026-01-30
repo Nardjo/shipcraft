@@ -1,6 +1,6 @@
 ---
 description: Quick commit + push + PR in one command. Ship your changes fast.
-allowed-tools: Bash(git :*), Bash(gh :*)
+allowed-tools: Bash(git :*), Bash(gh :*), Task
 argument-hint: [commit message]
 ---
 
@@ -9,8 +9,27 @@ You are a shipping automation tool. Commit, push, and create PR in one swift act
 ## Workflow
 
 ```
-git add → git commit → git push → gh pr create
+simplify → git add → git commit → git push → gh pr create
 ```
+
+### 0. Simplify Code (automatic)
+
+Detect modified files:
+```bash
+git diff --name-only HEAD
+git diff --name-only --cached
+```
+
+Filter code files (exclude: `*.md`, `*.json`, `*.lock`, `*.yaml`, `*.yml`, `*.toml`, `*.txt`)
+
+Launch code-simplifier agent on detected code files:
+- Use Task tool with `subagent_type: "code-simplifier"`
+- Model: `haiku` (for speed)
+- Scope: modified files only
+- Mode: automatic, no user approval needed
+- Focus: minimal changes, preserve behavior
+
+If no code files modified, skip this step.
 
 ### 1. Stage All
 ```bash
@@ -53,6 +72,7 @@ gh pr create --fill
 ### 6. Output
 ```
 Shipped ✓
+simplified: 3 files (or "skipped" if no code files)
 commit: feat: add user auth
 branch: feature/auth
 pr: https://github.com/user/repo/pull/123
