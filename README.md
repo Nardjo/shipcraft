@@ -7,21 +7,34 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 ## Architecture
 
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│  analyser   │───▶│   planner   │───▶│ implementer │───▶│  verifier   │
-│   (haiku)   │    │   (opus)    │    │  (sonnet)   │    │   (opus)    │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-       │                                                        │
-       └──────────────────┐    ┌────────────────────────────────┘
-                          ▼    ▼
-                    ┌─────────────┐
-                    │   snipper   │
-                    │   (haiku)   │
-                    └─────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                        RPI ORCHESTRATOR                          │
+└───────┬──────────┬──────────┬──────────┬──────────┬─────────────┘
+        │          │          │          │          │
+  ┌─────▼──────┐ ┌▼────────┐ ┌▼────────┐ ┌▼──────┐ ┌▼───────────┐
+  │requirement-│ │product-  │ │senior-  │ │cto-   │ │code-       │
+  │parser      │ │manager   │ │engineer │ │advisor│ │reviewer    │
+  │ (sonnet)   │ │ (sonnet) │ │ (opus)  │ │(opus) │ │ (opus)     │
+  └────────────┘ └──────────┘ └─────────┘ └───────┘ └────────────┘
+        │                                       │
+  ┌─────▼──────┐    ┌─────────────┐    ┌────────▼────┐
+  │ analyser   │    │ implementer │    │  verifier   │
+  │  (haiku)   │    │  (sonnet)   │    │   (opus)    │
+  └────────────┘    └─────────────┘    └─────────────┘
+        │
+  ┌─────▼──────┐    ┌─────────────┐
+  │  snipper   │    │code-        │
+  │  (haiku)   │    │simplifier   │
+  └────────────┘    └─────────────┘
 ```
 
 | Agent             | Modèle | Rôle                                            |
 | ----------------- | ------ | ----------------------------------------------- |
+| `requirement-parser` | sonnet | Parse les requirements et explore le codebase |
+| `product-manager` | sonnet | Évalue valeur, scope, MVP, acceptance criteria  |
+| `senior-engineer` | opus   | Analyse technique profonde (archi, perf, sécu)  |
+| `cto-advisor`     | opus   | Synthèse GO/NO-GO avant planning                |
+| `code-reviewer`   | opus   | Code review post-implémentation                 |
 | `analyser`        | haiku  | Explore le code, identifie patterns et contexte |
 | `planner`         | opus   | Crée des plans d'implémentation détaillés       |
 | `implementer`     | sonnet | Exécute les plans avec précision                |
@@ -35,7 +48,8 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 
 | Commande   | Description                      | Agents                                      |
 | ---------- | -------------------------------- | ------------------------------------------- |
-| `/apex`    | Workflow complet avec validation | analyser → planner → implementer → verifier |
+| `/rpi`     | Workflow complet avec GO/NO-GO   | 8 agents spécialisés + implémentation       |
+| `/rpi --light` | Workflow léger (ancien APEX) | analyser → planner → implementer → verifier |
 | `/debug`   | Diagnostic et fix de bugs        | analyser → snipper → verifier               |
 | `/oneshot` | Exécution autonome rapide        | -                                           |
 | `/export`  | Export session context complète  | -                                           |
@@ -54,10 +68,18 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 
 ## Usage
 
-### APEX - Workflow méthodique
+### RPI - Workflow complet
 
 ```
-/apex Ajouter l'authentification OAuth
+/rpi Ajouter l'authentification OAuth
+```
+
+→ Research (6 phases) → GO/NO-GO → Plan → **Approbation** → Implémentation → Review → Vérification
+
+### RPI Light - Workflow rapide
+
+```
+/rpi --light Ajouter un bouton de logout
 ```
 
 → Analyse → Plan → **Approbation** → Implémentation → Vérification
@@ -70,22 +92,6 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 
 → Diagnostic → Fix → Vérification
 
-### Branch - Créer une branche
-
-```
-/git:branch Ajouter l'authentification OAuth
-```
-
-→ Crée `feat/add-oauth-auth`
-
-### Ship - Livraison express
-
-```
-/git:ship "feat: add OAuth"
-```
-
-→ Commit → Push → PR créée
-
 ### OneShot - Exécution directe
 
 ```
@@ -93,14 +99,6 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 ```
 
 → Fait. Pas de questions.
-
-### Export - Capture de session
-
-```
-/export
-```
-
-→ Export complet de la session (clipboard ou fichier si > 200 lignes)
 
 ## Structure
 
@@ -112,9 +110,14 @@ shipcraft/
 │   ├── implementer.md
 │   ├── verifier.md
 │   ├── snipper.md
-│   └── code-simplifier.md
+│   ├── code-simplifier.md
+│   ├── requirement-parser.md
+│   ├── product-manager.md
+│   ├── senior-engineer.md
+│   ├── cto-advisor.md
+│   └── code-reviewer.md
 ├── commands/
-│   ├── apex.md
+│   ├── rpi.md
 │   ├── debug.md
 │   ├── oneshot.md
 │   ├── export.md

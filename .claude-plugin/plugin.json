@@ -6,7 +6,7 @@
     "name": "Jordan Bastin",
     "email": "jordanbastin@pm.me"
   },
-  "keywords": ["workflow", "agents", "apex", "git", "automation"],
+  "keywords": ["workflow", "agents", "rpi", "git", "automation"],
   "license": "MIT",
   "repository": "https://github.com/Nardjo/shipcraft"
 }
