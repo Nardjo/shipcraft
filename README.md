@@ -52,7 +52,6 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 | `/rpi --light` | Workflow léger (ancien APEX) | analyser → planner → implementer → verifier |
 | `/debug`   | Diagnostic et fix de bugs        | analyser → snipper → verifier               |
 | `/oneshot` | Exécution autonome rapide        | -                                           |
-| `/export`  | Export session context complète  | -                                           |
 
 ### Git
 
@@ -120,7 +119,6 @@ shipcraft/
 │   ├── rpi.md
 │   ├── debug.md
 │   ├── oneshot.md
-│   ├── export.md
 │   └── git/
 │       ├── branch.md
 │       ├── ship.md
