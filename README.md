@@ -50,6 +50,7 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 | ---------- | -------------------------------- | ------------------------------------------- |
 | `/rpi`     | Workflow complet avec GO/NO-GO   | 8 agents spécialisés + implémentation       |
 | `/rpi --light` | Workflow léger (ancien APEX) | analyser → planner → implementer → verifier |
+| `/rpi --ralph` | Implémentation autonome en boucle | Plan → ralph-loop.sh (contexte frais/itération) |
 | `/debug`   | Diagnostic et fix de bugs        | analyser → snipper → verifier               |
 | `/oneshot` | Exécution autonome rapide        | -                                           |
 
@@ -91,6 +92,16 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 
 → Diagnostic → Fix → Vérification
 
+### RPI Ralph — Implémentation autonome
+
+```
+/rpi --ralph Refactorer le système d'authentification
+```
+
+> Research → Plan → **Approbation** → Ralph Loop (1 step/itération, contexte frais, commit auto) → Rapport final
+
+Chaque itération lance un Claude avec `--print`, implémente UN step du plan, commit, et sort. La boucle s'arrête quand tout est fait. Max 25 itérations par défaut (`--max N` pour changer).
+
 ### OneShot - Exécution directe
 
 ```
@@ -120,6 +131,10 @@ shipcraft/
 │   ├── debug.md
 │   ├── oneshot.md
 │   └── git/
+├── scripts/
+│   └── ralph-loop.sh
+├── templates/
+│   └── ralph-prompt.md
 │       ├── branch.md
 │       ├── ship.md
 │       ├── commit.md

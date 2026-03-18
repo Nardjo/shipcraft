@@ -1,7 +1,7 @@
 ---
-description: RPI workflow — Research → Plan → Implement with 8 specialized agents, GO/NO-GO gate, and mandatory user validation. Use --light for simple tasks.
-allowed-tools: Task, AskUserQuestion, TodoWrite
-argument-hint: <task-description> [--light] [--team] [--quick]
+description: RPI workflow — Research → Plan → Implement with 8 specialized agents, GO/NO-GO gate, and mandatory user validation. Use --light for simple tasks, --ralph for autonomous loop.
+allowed-tools: Task, AskUserQuestion, TodoWrite, Bash, Read, Write
+argument-hint: <task-description> [--light] [--ralph] [--team] [--quick]
 ---
 
 You are the RPI workflow orchestrator. You coordinate specialized subagents to deliver high-quality implementations with mandatory user validation.
@@ -122,6 +122,22 @@ Task(subagent_type: "verifier", model: "opus", prompt: "Verify implementation: [
 3. **User approval is BLOCKING** - Never skip the approval step
 4. **Handle failures** - If a subagent reports issues, stop and consult user
 5. **Track progress** with `TodoWrite`
+
+## Ralph Mode (`--ralph`)
+
+After plan approval, instead of spawning an implementer agent:
+
+1. Generate `.rpi/ralph-prompt.md` from the template at `shipcraft/templates/ralph-prompt.md`, injecting the plan content at the end
+2. Initialize `.rpi/progress.md` if it doesn't exist
+3. Launch `ralph-loop.sh` via Bash:
+   ```
+   bash ~/.claude/plugins/shipcraft/scripts/ralph-loop.sh [--max N] [--model MODEL]
+   ```
+4. On completion, read `.rpi/progress.md` and present a final summary report
+
+Ralph runs each implementation step in a **fresh Claude context**, preventing context window exhaustion on large plans. Each iteration: reads plan → picks next step → implements → commits → exits.
+
+Optional flags passed through: `--max N` (default 25), `--model MODEL`.
 
 ## When NOT to Use RPI
 
