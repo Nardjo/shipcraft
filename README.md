@@ -51,6 +51,8 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 | `/rpi`     | Workflow complet avec GO/NO-GO   | 8 agents spécialisés + implémentation       |
 | `/rpi --light` | Workflow léger (ancien APEX) | analyser → planner → implementer → verifier |
 | `/rpi --ralph` | Implémentation autonome en boucle | Plan → ralph-loop.sh (contexte frais/itération) |
+| `/rpi --team` | Exécution parallèle via agent team | TeamCreate → TaskCreate → N implementers parallèles |
+| `/rpi --worktree` | Travail isolé dans un git worktree | EnterWorktree → workflow → merge/keep/discard |
 | `/debug`   | Diagnostic et fix de bugs        | analyser → snipper → verifier               |
 | `/oneshot` | Exécution autonome rapide        | -                                           |
 
@@ -101,6 +103,24 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 > Research → Plan → **Approbation** → Ralph Loop (1 step/itération, contexte frais, commit auto) → Rapport final
 
 Chaque itération lance un Claude avec `--print`, implémente UN step du plan, commit, et sort. La boucle s'arrête quand tout est fait. Max 25 itérations par défaut (`--max N` pour changer).
+
+### RPI Team — Exécution parallèle
+
+```
+/rpi --team Migrer les composants vers la nouvelle API
+```
+
+> Research → Plan → **Approbation** → Team (2-4 implementers en parallèle via TaskCreate) → Review → Vérification
+
+### RPI Worktree — Isolation complète
+
+```
+/rpi --worktree Refactorer le module auth
+```
+
+> Crée un worktree isolé → workflow complet → propose merge/keep/discard à la fin
+
+Les flags se combinent : `/rpi --worktree --team` ou `/rpi --worktree --ralph`.
 
 ### OneShot - Exécution directe
 

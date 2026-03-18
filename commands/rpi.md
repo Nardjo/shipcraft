@@ -1,7 +1,7 @@
 ---
-description: RPI workflow — Research → Plan → Implement with 8 specialized agents, GO/NO-GO gate, and mandatory user validation. Use --light for simple tasks, --ralph for autonomous loop.
-allowed-tools: Task, AskUserQuestion, TodoWrite, Bash, Read, Write
-argument-hint: <task-description> [--light] [--ralph] [--team] [--quick]
+description: RPI workflow — Research → Plan → Implement with 8 specialized agents, GO/NO-GO gate, and mandatory user validation. Use --light for simple tasks, --ralph for autonomous loop, --worktree for isolated branch, --team for parallel team execution.
+allowed-tools: Task, AskUserQuestion, TodoWrite, Bash, Read, Write, EnterWorktree, ExitWorktree, TeamCreate, TeamDelete, TaskCreate, TaskUpdate, TaskList, TaskGet, SendMessage
+argument-hint: <task-description> [--light] [--ralph] [--team] [--worktree] [--quick]
 ---
 
 You are the RPI workflow orchestrator. You coordinate specialized subagents to deliver high-quality implementations with mandatory user validation.
@@ -138,6 +138,83 @@ After plan approval, instead of spawning an implementer agent:
 Ralph runs each implementation step in a **fresh Claude context**, preventing context window exhaustion on large plans. Each iteration: reads plan → picks next step → implements → commits → exits.
 
 Optional flags passed through: `--max N` (default 25), `--model MODEL`.
+
+## Worktree Mode (`--worktree`)
+
+When `--worktree` is passed, the ENTIRE workflow runs in an isolated git worktree:
+
+### At Start (before Phase 1)
+
+1. Call `EnterWorktree` with a descriptive name: `rpi-<short-task-slug>`
+2. All subsequent phases (research, plan, execute, review, verify) run inside the worktree
+3. Inform the user: "Working in worktree `rpi-<slug>` on branch `rpi-<slug>`"
+
+### At End (after Final Report)
+
+1. Present the user with the worktree status:
+   - Branch name and commit count
+   - Files changed summary
+2. Ask the user:
+   ```
+   Worktree complete. What do you want to do?
+   - **Merge**: merge branch into original branch, then remove worktree
+   - **Keep**: keep worktree for manual review
+   - **Discard**: remove worktree and all changes
+   ```
+3. Execute the chosen action:
+   - **Merge**: `git checkout <original-branch> && git merge <worktree-branch>`, then `ExitWorktree(action: "remove")`
+   - **Keep**: `ExitWorktree(action: "keep")`
+   - **Discard**: `ExitWorktree(action: "remove", discard_changes: true)`
+
+### Combines with other flags
+
+`--worktree` can be combined with `--ralph` or `--team`. The worktree is created first, then the chosen execution mode runs inside it.
+
+## Team Mode (`--team`)
+
+When `--team` is passed, the execution phase (Phase 3) uses a real agent team with TaskCreate/TeamCreate for parallel coordination instead of individual Task() calls.
+
+### How it works
+
+1. After plan approval, create a team:
+   ```
+   TeamCreate(team_name: "rpi-<task-slug>", description: "RPI implementation for: <task>")
+   ```
+
+2. Break the approved plan into independent task groups and create tasks:
+   ```
+   TaskCreate(subject: "Implement <step>", description: "<detailed step from plan>")
+   ```
+
+3. Set up dependencies between tasks:
+   ```
+   TaskUpdate(taskId: "2", addBlockedBy: ["1"])  // step 2 depends on step 1
+   ```
+
+4. Spawn teammate agents for parallel execution:
+   ```
+   Agent(subagent_type: "shipcraft:implementer", team_name: "rpi-<task-slug>", name: "impl-1", prompt: "You are a teammate. Check TaskList, claim available tasks, implement them, mark complete.")
+   Agent(subagent_type: "shipcraft:implementer", team_name: "rpi-<task-slug>", name: "impl-2", prompt: "You are a teammate. Check TaskList, claim available tasks, implement them, mark complete.")
+   ```
+
+5. Monitor progress via TaskList until all tasks are completed
+
+6. Once all tasks complete, shutdown teammates and cleanup:
+   ```
+   SendMessage(to: "impl-1", message: {type: "shutdown_request"})
+   SendMessage(to: "impl-2", message: {type: "shutdown_request"})
+   TeamDelete()
+   ```
+
+7. Proceed to Review (Phase 4) and Verify (Phase 5) as normal
+
+### Team sizing
+
+- 2-3 independent steps → 2 teammates
+- 4-6 independent steps → 3 teammates
+- 7+ independent steps → 4 teammates (max)
+
+Dependent/sequential steps should be grouped into the same task chain.
 
 ## When NOT to Use RPI
 
