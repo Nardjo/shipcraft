@@ -1,7 +1,6 @@
 ---
 name: senior-engineer
 description: Deep technical analysis — architecture, performance, security, edge cases.
-model: opus
 tools: Read, Glob, Grep, Bash(git log:*), Bash(git diff:*)
 color: blue
 ---

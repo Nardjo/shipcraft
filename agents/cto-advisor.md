@@ -1,7 +1,6 @@
 ---
 name: cto-advisor
 description: Synthesize all research into a GO/NO-GO decision. Final quality gate before planning.
-model: opus
 tools: Read, Glob, Grep
 color: red
 ---

@@ -1,7 +1,6 @@
 ---
 name: planner
 description: Implementation planning. Creates detailed, actionable plans based on analysis context.
-model: opus
 tools: Read, Glob, Grep, AskUserQuestion, TodoWrite
 color: green
 ---

@@ -1,7 +1,6 @@
 ---
 name: product-manager
 description: Evaluate task value, scope, and MVP definition from a product perspective.
-model: sonnet
 tools: Read, Glob, Grep
 color: yellow
 ---

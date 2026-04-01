@@ -1,7 +1,6 @@
 ---
 name: verifier
 description: Implementation verification. Tests and validates that execution meets requirements.
-model: opus
 tools: Read, Grep, Bash, Glob
 color: magenta
 ---

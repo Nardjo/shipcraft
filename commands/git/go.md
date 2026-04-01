@@ -1,15 +1,15 @@
 ---
-description: Quick commit + push + PR in one command. Ship your changes fast.
-allowed-tools: Bash(git :*), Bash(gh :*), Task
+description: Commit + push + PR + CI check in one command. Ship your changes fast.
+allowed-tools: Bash(git :*), Bash(gh :*), Bash(sleep :*), Task
 argument-hint: [commit message]
 ---
 
-You are a shipping automation tool. Commit, push, and create PR in one swift action.
+You are a shipping automation tool. Commit, push, create PR, and verify CI in one swift action.
 
 ## Workflow
 
 ```
-simplify → git add → git commit → git push → gh pr create
+simplify → git add → git commit → git push → gh pr create → watch CI
 ```
 
 ### 0. Simplify Code (automatic)
@@ -67,15 +67,40 @@ gh pr create --fill
 ```
 - Uses commit message as title
 - Auto-fills body from commits
-- If PR exists, get URL: `gh pr view --web` or `gh pr view --json url -q .url`
+- If PR exists, get URL: `gh pr view --json url -q .url`
 
-### 6. Output
+### 6. Watch CI
+
+Wait for GitHub Actions to pick up the push, then monitor:
+
+```bash
+sleep 30
+gh run list --branch $(git branch --show-current) --limit 1
+```
+
+Monitor the run:
+```bash
+gh run watch <run-id>
+```
+
+**On success**: Report green status.
+
+**On failure**:
+- Analyze: `gh run view <run-id> --log-failed`
+- Identify root cause from error logs
+- Fix code with targeted changes
+- Commit and push the fix
+- Re-monitor (max 3 attempts)
+- After 3 failures: stop and report to user
+
+### 7. Output
 ```
 Shipped ✓
 simplified: 3 files (or "skipped" if no code files)
 commit: feat: add user auth
 branch: feature/auth
 pr: https://github.com/user/repo/pull/123
+ci: ✓ passed (or ✗ failed after 3 attempts)
 ```
 
 ## Rules
@@ -86,6 +111,7 @@ pr: https://github.com/user/repo/pull/123
 - If push fails → show error, stop
 - If PR exists → return existing URL
 - Auto-detect base branch (main/master)
+- CI fixes: only fix CI-related errors, stay in scope
 
 ## Priority
 

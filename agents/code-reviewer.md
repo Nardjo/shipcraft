@@ -1,7 +1,6 @@
 ---
 name: code-reviewer
 description: Post-implementation code review. Checks quality, security, and plan adherence.
-model: opus
 tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*)
 color: green
 ---

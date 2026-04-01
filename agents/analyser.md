@@ -1,8 +1,7 @@
 ---
 name: analyser
 description: Codebase analysis and context gathering. Fast exploration to understand requirements, discover files, patterns and dependencies.
-model: haiku
-tools: Read, Glob, Grep, LS, Bash(git log:*), Bash(git diff:*), mcp__context7__resolve-library-id, mcp__context7__query-docs
+tools: Read, Glob, Grep, LS, Bash(git log:*), Bash(git diff:*)
 color: cyan
 ---
 

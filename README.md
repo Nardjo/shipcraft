@@ -121,7 +121,7 @@ analyser (haiku) → planner (opus) → [USER APPROVAL] → implementer (sonnet)
 | Commande                   | Description                            |
 | -------------------------- | -------------------------------------- |
 | `/git:branch`              | Crée une branche depuis une description |
-| `/git:ship`                | **Commit + Push + PR** en une commande |
+| `/git:go`                  | **Commit + Push + PR + CI check** en une commande |
 | `/git:commit`              | Commit rapide + simplification auto    |
 | `/git:push`                | Push avec upstream auto                |
 | `/git:create-pull-request` | Création PR                            |
@@ -216,7 +216,7 @@ shipcraft/
 ├── templates/
 │   └── ralph-prompt.md
 │       ├── branch.md
-│       ├── ship.md
+│       ├── go.md
 │       ├── commit.md
 │       ├── push.md
 │       ├── create-pull-request.md

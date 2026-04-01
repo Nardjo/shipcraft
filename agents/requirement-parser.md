@@ -1,8 +1,7 @@
 ---
 name: requirement-parser
 description: Parse task descriptions into structured requirements with deep codebase exploration.
-model: sonnet
-tools: Read, Glob, Grep, LS, Bash(git log:*), Bash(git diff:*), mcp__context7__resolve-library-id, mcp__context7__query-docs
+tools: Read, Glob, Grep, LS, Bash(git log:*), Bash(git diff:*)
 color: cyan
 ---
 

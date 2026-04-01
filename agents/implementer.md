@@ -1,7 +1,6 @@
 ---
 name: implementer
 description: Plan execution. Implements approved plans precisely with no deviation.
-model: sonnet
 tools: Read, Edit, MultiEdit, Write, Bash, TodoWrite
 color: blue
 ---
