@@ -9,11 +9,11 @@
       "name": "shipcraft",
       "source": "./",
       "description": "Ship fast, craft well. Agents spécialisés et workflows automatisés pour Claude Code.",
-      "version": "1.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Jordan Bastin"
       },
-      "keywords": ["workflow", "agents", "apex", "git", "automation"],
+      "keywords": ["workflow", "agents", "rpi", "git", "automation"],
       "license": "MIT"
     }
   ]
