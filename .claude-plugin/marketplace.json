@@ -9,7 +9,7 @@
       "name": "shipcraft",
       "source": "./",
       "description": "Ship fast, craft well. Agents spécialisés et workflows automatisés pour Claude Code.",
-      "version": "2.1.0",
+      "version": "3.0.0",
       "author": {
         "name": "Jordan Bastin"
       },

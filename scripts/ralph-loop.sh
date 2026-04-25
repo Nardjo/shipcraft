@@ -4,7 +4,7 @@
 # Runs from the project root where .rpi/ exists
 
 set -e
-MAX_ITER=25
+MAX_ITER=15
 MODEL=""
 PROMISE="<PROMISE>COMPLETE</PROMISE>"
 RPI_DIR=".rpi"

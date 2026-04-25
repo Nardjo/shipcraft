@@ -6,145 +6,98 @@ Plugin Claude Code avec agents spécialisés et workflows automatisés pour un d
 
 ## Architecture
 
-### Full Mode (`/rpi`)
+### Light Mode (`/rpi`, défaut)
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      RPI ORCHESTRATOR                        │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-    ╔══════════════════════╧═══════════════════════╗
-    ║          PHASE 1: RESEARCH (parallel)         ║
-    ╚══════════════════════╤═══════════════════════╝
-         ┌─────────────────┼─────────────────┐
-         ▼                 ▼                 ▼
-  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-  │ requirement- │ │   product-   │ │   senior-    │
-  │   parser     │ │   manager    │ │  engineer    │
-  │  (sonnet)    │ │  (sonnet)    │ │   (opus)     │
-  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘
-         └─────────────────┼─────────────────┘
-                           ▼
-    ╔══════════════════════╧═══════════════════════╗
-    ║           PHASE 2: GO/NO-GO GATE              ║
-    ╚══════════════════════╤═══════════════════════╝
-                           ▼
-                  ┌──────────────┐
-                  │  cto-advisor │──── NO-GO ──→ STOP
-                  │   (opus)     │
-                  └──────┬───────┘
-                         │ GO
-                         ▼
-    ╔════════════════════╧════════════════════════╗
-    ║              PHASE 3: PLAN                    ║
-    ╚════════════════════╤════════════════════════╝
-                         ▼
-                  ┌──────────────┐
-                  │   planner    │
-                  │   (opus)     │
-                  └──────┬───────┘
-                         ▼
-               ┌───────────────────┐
-               │  USER APPROVAL ?  │──── NO ──→ REVISE
-               └────────┬──────────┘
-                        │ YES
-                        ▼
-    ╔═══════════════════╧════════════════════════╗
-    ║            PHASE 4: EXECUTE                  ║
-    ╚═══════════════════╤════════════════════════╝
-              ┌─────────┴─────────┐
-              ▼                   ▼
-     ┌──────────────┐   ┌──────────────┐
-     │ implementer  │   │  snipper(s)  │
-     │  (sonnet)    │   │   (opus)     │
-     │  séquentiel  │   │  parallèle   │
-     └──────┬───────┘   └──────┬───────┘
-             └────────┬────────┘
-                      ▼
-    ╔═════════════════╧══════════════════════════╗
-    ║         PHASE 5: REVIEW                     ║
-    ╚═════════════════╤══════════════════════════╝
-                      ▼
-             ┌──────────────┐
-             │code-reviewer │
-             │   (opus)     │
-             └──────┬───────┘
-                    ▼
-    ╔═══════════════╧════════════════════════════╗
-    ║         PHASE 6: VERIFY                     ║
-    ╚═══════════════╤════════════════════════════╝
-                    ▼
-             ┌──────────────┐
-             │   verifier   │
-             │   (opus)     │
-             └──────┬───────┘
-                    ▼
-              ✅ COMPLETE
+analyser (haiku) → planner (opus) → [USER APPROVAL] → implementer (sonnet) → verifier (sonnet)
 ```
 
-### Light Mode (`/rpi --light`)
+L'analyser écrit son rapport complet dans `.rpi/context.md` ; les agents en aval lisent ce fichier au lieu de re-explorer.
+
+### Full Mode (`/rpi --full`, opt-in)
 
 ```
-analyser (haiku) → planner (opus) → [USER APPROVAL] → implementer (sonnet) → verifier (opus)
+RESEARCH (parallèle)
+  requirement-parser (sonnet) ─→ écrit .rpi/context.md
+       │
+       ├─→ product-manager (sonnet) ─┐
+       └─→ senior-engineer (opus)    ├─→ GO/NO-GO (cto-advisor opus, skipped si consensus GO)
+                                     │
+                                     ▼
+                                  PLAN (planner opus)
+                                     │
+                          [USER APPROVAL bloquant]
+                                     │
+                                     ▼
+                          EXECUTE (implementer sonnet
+                                  ou snipper sonnet ×N)
+                                     │
+                                     ▼
+                          VERIFY (verifier sonnet)
+                                  build + review + requirements
+                                     │
+                                     ▼
+                                ✅ COMPLETE
 ```
 
-| Agent             | Modèle | Rôle                                            |
-| ----------------- | ------ | ----------------------------------------------- |
-| `requirement-parser` | sonnet | Parse les requirements et explore le codebase |
-| `product-manager` | sonnet | Évalue valeur, scope, MVP, acceptance criteria  |
-| `senior-engineer` | opus   | Analyse technique profonde (archi, perf, sécu)  |
-| `cto-advisor`     | opus   | Synthèse GO/NO-GO avant planning                |
-| `code-reviewer`   | opus   | Code review post-implémentation                 |
-| `analyser`        | haiku  | Explore le code, identifie patterns et contexte |
-| `planner`         | opus   | Crée des plans d'implémentation détaillés       |
-| `implementer`     | sonnet | Exécute les plans avec précision                |
-| `verifier`        | opus   | Vérifie, teste, valide                          |
-| `snipper`         | haiku  | Éditions rapides et ciblées                     |
-| `code-simplifier` | -      | Simplifie et refactorise le code automatiquement |
+Le `verifier` combine désormais build checks, code review et validation des requirements en un seul agent.
+
+| Agent                | Modèle | Rôle                                                   |
+| -------------------- | ------ | ------------------------------------------------------ |
+| `analyser`           | haiku  | Explore le code, écrit `.rpi/context.md` (light mode)  |
+| `requirement-parser` | sonnet | Parse les requirements, écrit `.rpi/context.md` (full) |
+| `product-manager`    | sonnet | Évalue valeur, scope, MVP, acceptance criteria         |
+| `senior-engineer`    | opus   | Analyse technique profonde (archi, perf, sécu)         |
+| `cto-advisor`        | opus   | Synthèse GO/NO-GO (skipped si consensus)               |
+| `planner`            | opus   | Crée des plans d'implémentation détaillés              |
+| `implementer`        | sonnet | Exécute les plans avec précision                       |
+| `snipper`            | sonnet | Éditions rapides et ciblées                            |
+| `verifier`           | sonnet | Build checks + code review + requirements validation   |
+| `code-simplifier`    | -      | Simplifie et refactorise le code automatiquement       |
 
 ## Commandes
 
 ### Workflows
 
-| Commande   | Description                      | Agents                                      |
-| ---------- | -------------------------------- | ------------------------------------------- |
-| `/rpi`     | Workflow complet avec GO/NO-GO   | 8 agents spécialisés + implémentation       |
-| `/rpi --light` | Workflow léger (ancien APEX) | analyser → planner → implementer → verifier |
-| `/rpi --ralph` | Implémentation autonome en boucle | Plan → ralph-loop.sh (contexte frais/itération) |
-| `/rpi --team` | Exécution parallèle via agent team | TeamCreate → TaskCreate → N implementers parallèles |
-| `/rpi --worktree` | Travail isolé dans un git worktree | EnterWorktree → workflow → merge/keep/discard |
-| `/debug`   | Diagnostic et fix de bugs        | analyser → snipper → verifier               |
-| `/oneshot` | Exécution autonome rapide        | -                                           |
+| Commande          | Description                        | Agents                                              |
+| ----------------- | ---------------------------------- | --------------------------------------------------- |
+| `/rpi`            | Workflow léger (défaut)            | analyser → planner → implementer → verifier         |
+| `/rpi --full`     | Workflow complet avec GO/NO-GO     | 6 agents + implémentation + verifier fusionné       |
+| `/rpi --ralph`    | Implémentation autonome en boucle  | Plan → ralph-loop.sh (contexte frais/itération)     |
+| `/rpi --team`     | Exécution parallèle via agent team | TeamCreate → TaskCreate → N implementers parallèles |
+| `/rpi --worktree` | Travail isolé dans un git worktree | EnterWorktree → workflow → merge/keep/discard       |
+| `/debug`          | Diagnostic et fix de bugs          | analyser → snipper → verifier                       |
+| `/oneshot`        | Exécution autonome rapide          | -                                                   |
 
 ### Git
 
-| Commande                   | Description                            |
-| -------------------------- | -------------------------------------- |
-| `/git:branch`              | Crée une branche depuis une description |
-| `/git:commit-push-pr`      | **Commit + Push + PR + CI check** en une commande |
-| `/git:commit`              | Commit rapide + simplification auto    |
-| `/git:push`                | Push avec upstream auto                |
-| `/git:create-pull-request` | Création PR                            |
-| `/git:review-pr`           | Review de PR                           |
-| `/git:watch-ci`            | Monitoring CI + auto-fix               |
+| Commande                   | Description                                       |
+| -------------------------- | ------------------------------------------------- |
+| `/git:branch`              | Crée une branche depuis une description           |
+| `/git:cpp`                 | **Commit + Push + PR + CI check** en une commande |
+| `/git:commit`              | Commit rapide + simplification auto               |
+| `/git:push`                | Push avec upstream auto                           |
+| `/git:create-pull-request` | Création PR                                       |
+| `/git:review-pr`           | Review de PR                                      |
+| `/git:watch-ci`            | Monitoring CI + auto-fix                          |
 
 ## Usage
 
-### RPI - Workflow complet
+### RPI - Workflow léger (défaut)
 
 ```
-/rpi Ajouter l'authentification OAuth
-```
-
-→ Research (6 phases) → GO/NO-GO → Plan → **Approbation** → Implémentation → Review → Vérification
-
-### RPI Light - Workflow rapide
-
-```
-/rpi --light Ajouter un bouton de logout
+/rpi Ajouter un bouton de logout
 ```
 
 → Analyse → Plan → **Approbation** → Implémentation → Vérification
+
+### RPI Full - Workflow complet
+
+```
+/rpi --full Ajouter l'authentification OAuth
+```
+
+→ Research (parallèle) → GO/NO-GO (court-circuité si consensus) → Plan → **Approbation** → Implémentation → Vérification (build + review + requirements)
 
 ### Debug - Correction de bugs
 
@@ -162,7 +115,7 @@ analyser (haiku) → planner (opus) → [USER APPROVAL] → implementer (sonnet)
 
 > Research → Plan → **Approbation** → Ralph Loop (1 step/itération, contexte frais, commit auto) → Rapport final
 
-Chaque itération lance un Claude avec `--print`, implémente UN step du plan, commit, et sort. La boucle s'arrête quand tout est fait. Max 25 itérations par défaut (`--max N` pour changer).
+Chaque itération lance un Claude avec `--print`, implémente UN step du plan, commit, et sort. La boucle s'arrête quand tout est fait. Max 15 itérations par défaut (`--max N` pour changer).
 
 ### RPI Team — Exécution parallèle
 
@@ -198,14 +151,13 @@ shipcraft/
 │   ├── analyser.md
 │   ├── planner.md
 │   ├── implementer.md
-│   ├── verifier.md
+│   ├── verifier.md          # fused: build + code review + requirements
 │   ├── snipper.md
 │   ├── code-simplifier.md
 │   ├── requirement-parser.md
 │   ├── product-manager.md
 │   ├── senior-engineer.md
-│   ├── cto-advisor.md
-│   └── code-reviewer.md
+│   └── cto-advisor.md
 ├── commands/
 │   ├── rpi.md
 │   ├── debug.md

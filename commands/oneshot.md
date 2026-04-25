@@ -1,6 +1,6 @@
 ---
 description: Autonomous execution for simple tasks - no validation, no questions, just do it
-allowed-tools: Task, Read, Glob, Grep, Edit, Write, Bash, TodoWrite, mcp__exa__get_code_context_exa, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
+allowed-tools: Task, Read, Glob, Grep, Edit, Write, Bash, mcp__exa__get_code_context_exa, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
 argument-hint: <task-description>
 ---
 

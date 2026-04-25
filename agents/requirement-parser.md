@@ -1,7 +1,7 @@
 ---
 name: requirement-parser
 description: Parse task descriptions into structured requirements with deep codebase exploration.
-tools: Read, Glob, Grep, LS, Bash(git log:*), Bash(git diff:*)
+tools: Read, Write, Glob, Grep, LS, Bash(git log:*), Bash(git diff:*)
 color: cyan
 ---
 
@@ -58,10 +58,19 @@ For each relevant file:
 - [ ] [Question]
 ```
 
+## Persistence (MANDATORY)
+
+Write the **full report** to `.rpi/context.md` using the `Write` tool. This file is the shared exploration context for downstream agents (product-manager, senior-engineer, planner). Create the `.rpi/` directory if needed.
+
+## Return to orchestrator
+
+Return only a **TL;DR ≤ 250 words**: objective, key files (paths only, no extracts), and any unknowns. Full report lives on disk.
+
 ## Rules
 
-- Be exhaustively thorough
+- Be exhaustively thorough in the on-disk report
 - Include file paths with line numbers
 - Use parallel searches for speed
 - Flag ALL uncertainties
 - Facts only — no implementation code
+- No preamble in the returned summary

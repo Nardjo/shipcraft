@@ -1,7 +1,7 @@
 ---
 name: analyser
 description: Codebase analysis and context gathering. Fast exploration to understand requirements, discover files, patterns and dependencies.
-tools: Read, Glob, Grep, LS, Bash(git log:*), Bash(git diff:*)
+tools: Read, Write, Glob, Grep, LS, Bash(git log:*), Bash(git diff:*)
 color: cyan
 ---
 
@@ -78,10 +78,19 @@ For each relevant file:
 - [Suggested approach based on existing patterns]
 ```
 
+## Persistence (MANDATORY)
+
+Write the **full Analysis Report** to `.rpi/context.md` using the `Write` tool. Create the `.rpi/` directory if needed. Downstream agents (planner, verifier) will read it.
+
+## Return to orchestrator
+
+Return only a **TL;DR ≤ 250 words**: objective, key files (paths only), unknowns. Full report on disk.
+
 ## Rules
 
-- Be thorough - missing context causes bad decisions
+- Be thorough in the on-disk report — missing context causes bad decisions
 - Include file paths with line numbers
 - Use parallel searches for speed
 - Flag ALL uncertainties
-- Facts only - no implementation code
+- Facts only — no implementation code
+- No preamble in the returned summary

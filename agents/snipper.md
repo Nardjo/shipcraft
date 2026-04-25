@@ -32,3 +32,7 @@ Simply list each file and the change made:
 ## Priority
 
 Speed > Explanation. Just get it done.
+
+## Output rules
+
+- Files-changed list only. No preamble, no diff dump, no explanation.
